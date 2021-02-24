@@ -310,16 +310,16 @@ if (params.mode=="germline"){
     file fasta_ref_fai
     
     output:
-    file '*.germline.vcf.gz' into vcffiles
-    file '*.germline.vcf.gz.tbi' into vcftbifiles
+    file '*.genome.vcf.gz' into vcffiles
+    file '*.genome.vcf.gz.tbi' into vcftbifiles
 
     shell:
     if (vcf.name=='NO_VCF' & params.callRegions!="NO_FILE") { callRegions="--callRegions $bed" } else { callRegions="" }
     if (vcf.name=='NO_VCF' & params.callRegions!="NO_FILE") { callRegions="--callRegions $bed" } else { callRegions="" }
      if(sample){
-	   output_prefix="${sample}.germline"
+	   output_prefix="${sample}.genome"
      }else{
-	   output_prefix="${bam}.germline"
+	   output_prefix="${bam}.genome"
      }
     '''
     forcedGT=''
@@ -333,32 +333,12 @@ if (params.mode=="germline"){
     ./runWorkflow.py -m local -j !{params.cpu} -g !{params.mem}
     cd ..
     mv strelkaAnalysis/results/variants/* .
-    mv variants.vcf.gz !{output_prefix}.vcf.gz
-    mv variants.vcf.gz.tbi !{output_prefix}.vcf.gz.tbi
+    mv genome*.vcf.gz !{output_prefix}.vcf.gz
+    mv genome*.vcf.gz.tbi !{output_prefix}.vcf.gz.tbi
     '''
   }
 
   vcffiles.into{ vcffiles1 ; vcffiles2 }
 }
 
-}
-
-process filter_pass{
-   cpus 1
-   memory '1GB'
-
-   publishDir params.output_folder+"/VCFs/filtered/", mode: 'copy'
-
-   input:
-   file vcf from vcffiles2.flatten()
-
-   output:
-   file '*_PASS.vcf.gz*' into filtered
-
-   shell:
-   file_tag = vcf[0].name.replace(".vcf.gz","").replace(".vcf","")
-   '''
-   bcftools view -f PASS -O z !{vcf} -o !{file_tag}_PASS.vcf.gz
-   bcftools index -t !{file_tag}_PASS.vcf.gz
-   '''
 }
