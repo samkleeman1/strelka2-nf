@@ -333,8 +333,8 @@ if (params.mode=="germline"){
     ./runWorkflow.py -m local -j !{params.cpu} -g !{params.mem}
     cd ..
     mv strelkaAnalysis/results/variants/* .
-    mv genome*.vcf.gz !{output_prefix}.vcf.gz
-    mv genome*.vcf.gz.tbi !{output_prefix}.vcf.gz.tbi
+    mv genome.S1.vcf.gz !{output_prefix}.vcf.gz
+    mv genome.S1.vcf.gz.tbi !{output_prefix}.vcf.gz.tbi
     '''
   }
 
